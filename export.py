@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import csv
 import html
+import os
 import re
 from datetime import datetime
 from pathlib import Path
@@ -15,7 +16,7 @@ from string import Template
 
 import calculs
 
-DOSSIER_EXPORTS = Path(__file__).resolve().parent / "exports"
+DOSSIER_EXPORTS = Path(os.environ.get("CARNET_DATA_DIR") or Path(__file__).resolve().parent) / "exports"
 FORMATION = "Master 1 DAT"
 
 

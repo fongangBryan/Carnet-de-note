@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+carnet_notes.db
+*.db-journal
+exports/
+carnet.json
+.git/
+.vscode/
+.idea/
+.venv/
+venv/

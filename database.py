@@ -10,6 +10,7 @@ Au premier lancement :
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 from collections import defaultdict
 from datetime import datetime
@@ -19,7 +20,10 @@ import auth
 import calculs
 
 DOSSIER_APP = Path(__file__).resolve().parent
-CHEMIN_DB = DOSSIER_APP / "carnet_notes.db"
+# Dossier des données (base) : le dossier de l'application, sauf si CARNET_DATA_DIR est défini (ex. Docker)
+DOSSIER_DONNEES = Path(os.environ.get("CARNET_DATA_DIR") or DOSSIER_APP)
+DOSSIER_DONNEES.mkdir(parents=True, exist_ok=True)
+CHEMIN_DB = DOSSIER_DONNEES / "carnet_notes.db"
 # Emplacements possibles de l'ancienne sauvegarde JSON (version customtkinter)
 ANCIENS_FICHIERS = (DOSSIER_APP / "carnet.json", DOSSIER_APP.parent / "carnet.json")
 MATIERE_IMPORT = "Ancien carnet (import)"

@@ -97,6 +97,50 @@ Un script teste la syntaxe, la logique métier et l'ouverture de toutes les fen�
 python verification.py
 ```
 
+## Lancement avec Docker
+
+Le `Dockerfile` est multi-stage :
+
+| Stage  | Rôle                                                                      |
+|--------|---------------------------------------------------------------------------|
+| `base` | Python 3.14 + Tkinter + code de l'application                             |
+| `test` | Lance `verification.py` : le build échoue si un test échoue               |
+| `x11`  | Affiche l'application sur le serveur X de la machine hôte                 |
+| `web`  | (par défaut) Affiche l'application dans le navigateur grâce à noVNC       |
+
+### Dans le navigateur (le plus simple, fonctionne sous Windows, macOS et Linux)
+
+```bash
+docker build -t carnet-notes .
+docker run -it --rm -p 127.0.0.1:6080:6080 -v carnet-data:/data carnet-notes
+```
+
+Puis ouvrir <http://localhost:6080/vnc.html?autoconnect=1&resize=scale>.
+
+### Avec un serveur X (fenêtre native)
+
+```bash
+docker build --target x11 -t carnet-notes:x11 .
+
+# Linux
+xhost +local:
+docker run --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v carnet-data:/data carnet-notes:x11
+
+# Windows avec un serveur X (VcXsrv, X410…) qui accepte les connexions
+docker run --rm -e DISPLAY=host.docker.internal:0.0 -v carnet-data:/data carnet-notes:x11
+```
+
+### Tests uniquement
+
+```bash
+docker build --target test .
+```
+
+### Données
+
+Dans le conteneur, la base `carnet_notes.db` et le dossier `exports/` sont rangés dans `/data`, conservés dans le volume Docker `carnet-data`.
+Cet emplacement est réglé par la variable d'environnement `CARNET_DATA_DIR`. Sans cette variable (lancement classique avec `python main.py`), les données restent dans le dossier du projet.
+
 ## Structure du projet
 
 | Fichier            | Rôle                                          |
@@ -112,6 +156,8 @@ python verification.py
 | `export.py`        | Export des relevés (HTML / CSV)               |
 | `theme.py`         | Style graphique de l'interface                |
 | `verification.py`  | Script de tests                               |
+
+Pour Docker : `Dockerfile`, `.dockerignore` et `docker/entrypoint-web.sh` (démarrage de l'écran virtuel et de noVNC).
 
 Les relevés exportés sont enregistrés dans le dossier `exports/`.
 
